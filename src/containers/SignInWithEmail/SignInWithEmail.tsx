@@ -2,7 +2,11 @@ import { VFC, useCallback, useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { Input, LoginButton } from "../../components";
 import { Credentials, FirebaseError } from "../../types";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import styled from "styled-components";
 import { useHistory } from "react-router";
 import {
@@ -20,6 +24,17 @@ const ErrorMessage = styled.div`
   text-align: right;
 `;
 
+const ForgotPassword = styled.p`
+  font-size: 0.75rem;
+  color: #36486b;
+  align-self: flex-end;
+`;
+
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+`;
+
 const SignInWithEmail: VFC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -27,6 +42,18 @@ const SignInWithEmail: VFC = () => {
   const auth = getAuth();
 
   const history = useHistory();
+
+  const handleResetPassword = useCallback(async () => {
+    // try {
+    //   const res = await sendPasswordResetEmail(
+    //     auth,
+    //     "ondrej.bukartyk@gmail.com"
+    //   );
+    //   console.log("res", res);
+    // } catch (error) {
+    //   console.log("error", error);
+    // }
+  }, []);
 
   const onSubmit = useCallback(
     async (credentials: Credentials) => {
@@ -60,7 +87,7 @@ const SignInWithEmail: VFC = () => {
       onSubmit={onSubmit}
       render={({ handleSubmit, valid }) => {
         return (
-          <form onSubmit={handleSubmit}>
+          <StyledForm onSubmit={handleSubmit}>
             <Field name="email" validate={composeValidators(required, email)}>
               {(props) => <Input type="email" label="Email" {...props} />}
             </Field>
@@ -72,10 +99,13 @@ const SignInWithEmail: VFC = () => {
               {(props) => <Input type="password" label="Password" {...props} />}
             </Field>
             <ErrorMessage>{error}</ErrorMessage>
+            <ForgotPassword onClick={handleResetPassword}>
+              Forgot password?
+            </ForgotPassword>
             <LoginButton type="submit" loading={loading} disabled={!valid}>
               Sign in
             </LoginButton>
-          </form>
+          </StyledForm>
         );
       }}
     />
